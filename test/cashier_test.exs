@@ -58,4 +58,15 @@ defmodule CashierTest do
     Cashier.add_to_basket(agent, List.duplicate(:CF1, 10))
     assert Cashier.checkout(agent) === "£74.86"
   end
+
+  test "Given sample data from document, then return final price expected respectively", %{agent: agent} do
+    Cashier.add_to_basket(agent, [:GR1,:SR1,:GR1,:GR1,:CF1])
+    assert Cashier.checkout(agent) === "£22.45"
+    Cashier.add_to_basket(agent, [:GR1,:GR1])
+    assert Cashier.checkout(agent) === "£3.11"
+    Cashier.add_to_basket(agent, [:SR1,:SR1,:GR1,:SR1])
+    assert Cashier.checkout(agent) === "£16.61"
+    Cashier.add_to_basket(agent, [:GR1,:CF1,:SR1,:CF1,:CF1])
+    assert Cashier.checkout(agent) === "£30.57"
+  end
 end
