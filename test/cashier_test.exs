@@ -8,7 +8,17 @@ defmodule CashierTest do
     %{agent: agent}
   end
 
-  test "Given one  GR1 in the basket, then don't apply any discount" do
+  test "Given a product code to `add_to_basket/2`, then increment its counter", %{agent: agent} do
+    assert Cashier.add_to_basket(agent, :GR1) == :ok
+    assert %{GR1: 1} = Agent.get(agent, &(&1))
+  end
+
+  test "Given a list of product codes to `add_to_basket/1`, then increment each counter", %{agent: agent} do
+    assert Cashier.add_to_basket(agent, [:GR1, :CF1, :CF1, :GR1, :STR1]) == :ok
+    assert %{CF1: 2, GR1: 2, STR1: 1} == Agent.get(agent, &(&1))
+  end
+
+  test "Given one GR1 in the basket, then don't apply any discount" do
 
   end
 
