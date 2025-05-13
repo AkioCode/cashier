@@ -1,16 +1,18 @@
 defmodule CashierTest do
   use ExUnit.Case
   doctest Cashier
+  alias Cashier
 
-  test "Given a product code to `add_to_basket/1`, then increment its counter" do
+  setup do
+    {:ok, agent} = Cashier.start_link([])
+    %{agent: agent}
+  end
+
+  test "Given one  GR1 in the basket, then don't apply any discount" do
 
   end
 
   test "Given a list of product codes to `add_to_basket/1`, then store it" do
-
-  end
-
-  test "Given one  GR1 in the basket, then don't apply any discount" do
 
   end
 

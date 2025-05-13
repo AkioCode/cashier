@@ -3,16 +3,15 @@ defmodule Cashier do
   Documentation for `Cashier`.
   """
 
-  @doc """
-  Hello world.
+  use Agent
 
-  ## Examples
+  @products %{
+    GR1: %{name: "Green tea", price: 311},
+    SR1: %{name: "Strawberries", price: 500},
+    CF1: %{name: "Coffee", price: 1123}
+  }
 
-      iex> Cashier.hello()
-      :world
-
-  """
-  def hello do
-    :world
+  def start_link(_opts) do
+    Agent.start_link(fn -> %{} end)
   end
 end
