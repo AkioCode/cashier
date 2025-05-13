@@ -19,7 +19,7 @@ defmodule Cashier do
   Given a product code or a list of product codes, then add to the basket
   """
   @spec add_to_basket(pid(), atom() | list) :: :ok
-  def add_to_basket(agent, [_|_] = product_code_list) do
+  def add_to_basket(agent, [_ | _] = product_code_list) do
     Enum.each(product_code_list, &add_to_basket(agent, &1))
   end
 
@@ -28,7 +28,7 @@ defmodule Cashier do
   end
 
   def checkout(agent) do
-    %{basket: Agent.get(agent, &(&1)), price: 0}
+    %{basket: Agent.get(agent, & &1), price: 0}
     |> calculate_price()
     |> tap(fn _ -> reset_cashier(agent) end)
     |> format_price_and_display()
@@ -51,14 +51,14 @@ defmodule Cashier do
 
   defp apply_sr1_discount(token) do
     amount = token.basket[:SR1] || 0
-    discounted = amount >= 3 && (450 * amount) || (@products[:SR1].price * amount)
+    discounted = (amount >= 3 && 450 * amount) || @products[:SR1].price * amount
     %{token | price: token.price + discounted}
   end
 
   defp apply_cf1_discount(token) do
     amount = token.basket[:CF1] || 0
     original_price = @products[:CF1].price * amount
-    discounted = amount >= 3 && trunc(original_price * 2 / 3) || original_price
+    discounted = (amount >= 3 && trunc(original_price * 2 / 3)) || original_price
     %{token | price: token.price + discounted}
   end
 
