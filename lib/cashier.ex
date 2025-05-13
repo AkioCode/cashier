@@ -29,16 +29,28 @@ defmodule Cashier do
 
   def checkout(agent) do
     %{basket: Agent.get(agent, &(&1)), price: 0}
+    |> apply_discounts()
     |> calculate_price()
     |> tap(fn _ -> reset_cashier(agent) end)
     |> format_price_and_display()
   end
 
+  defp apply_discounts(token) do
+    token
+    |> apply_gr1_discount()
+  end
+
+  defp apply_gr1_discount(token) do
+    price = @products[:GR1].price
+    amount = token.basket[:GR1] || 0
+    rest = Integer.mod(amount, 2)
+    gr1_discount = trunc((amount - rest) / 2 * price) + rest * price
+    %{token | price: token.price + gr1_discount}
+  end
+
   defp calculate_price(token) do
     Map.update!(token, :price, fn price ->
-      Enum.reduce(token.basket, price, fn {code, amount}, acc ->
-        @products[code].price * amount + acc
-      end)
+      Enum.sum([price | Enum.map([:SR1, :CF1], &((token.basket[&1] || 0) * @products[&1].price))])
     end)
   end
 
