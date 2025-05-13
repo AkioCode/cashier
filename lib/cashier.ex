@@ -26,4 +26,32 @@ defmodule Cashier do
   def add_to_basket(agent, product_code) do
     Agent.update(agent, &Map.update(&1, product_code, 1, fn n -> n + 1 end))
   end
+
+  def checkout(agent) do
+    %{basket: Agent.get(agent, &(&1)), price: 0}
+    |> calculate_price()
+    |> tap(fn _ -> reset_cashier(agent) end)
+    |> format_price_and_display()
+  end
+
+  defp calculate_price(token) do
+    Map.update!(token, :price, fn price ->
+      Enum.reduce(token.basket, price, fn {code, amount}, acc ->
+        @products[code].price * amount + acc
+      end)
+    end)
+  end
+
+  defp reset_cashier(agent) do
+    Agent.update(agent, fn _ -> %{} end)
+  end
+
+  defp format_price_and_display(token) do
+    token.price
+    |> Integer.digits()
+    |> Enum.split(-2)
+    |> then(fn {euro, cents} ->
+      "£#{Enum.join(euro)}.#{Enum.join(cents)}"
+    end)
+  end
 end
