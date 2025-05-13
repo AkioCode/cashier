@@ -38,19 +38,26 @@ defmodule Cashier do
   defp apply_discounts(token) do
     token
     |> apply_gr1_discount()
+    |> apply_sr1_discount()
   end
 
   defp apply_gr1_discount(token) do
     price = @products[:GR1].price
     amount = token.basket[:GR1] || 0
     rest = Integer.mod(amount, 2)
-    gr1_discount = trunc((amount - rest) / 2 * price) + rest * price
-    %{token | price: token.price + gr1_discount}
+    discounted = trunc((amount - rest) / 2 * price) + rest * price
+    %{token | price: token.price + discounted}
+  end
+
+  defp apply_sr1_discount(token) do
+    amount = token.basket[:SR1] || 0
+    discounted = amount >= 3 && (450 * amount) || (@products[:SR1].price * amount)
+    %{token | price: token.price + discounted}
   end
 
   defp calculate_price(token) do
     Map.update!(token, :price, fn price ->
-      Enum.sum([price | Enum.map([:SR1, :CF1], &((token.basket[&1] || 0) * @products[&1].price))])
+      Enum.sum([price | Enum.map([:CF1], &((token.basket[&1] || 0) * @products[&1].price))])
     end)
   end
 

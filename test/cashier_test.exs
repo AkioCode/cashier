@@ -44,7 +44,9 @@ defmodule CashierTest do
     assert Cashier.checkout(agent) === "£5.00"
   end
 
-  test "Given more than 2 SR1 in the basket, then lower its price to 4.50" do
+  test "Given more than 2 SR1 in the basket, then lower its price to 4.50", %{agent: agent} do
+    Cashier.add_to_basket(agent, List.duplicate(:SR1, 3))
+    assert Cashier.checkout(agent) === "£13.50"
   end
 
   test "Given less than 2 CF1 in the basket, then don't apply any discount", %{agent: agent} do
