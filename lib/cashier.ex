@@ -29,16 +29,16 @@ defmodule Cashier do
 
   def checkout(agent) do
     %{basket: Agent.get(agent, &(&1)), price: 0}
-    |> apply_discounts()
     |> calculate_price()
     |> tap(fn _ -> reset_cashier(agent) end)
     |> format_price_and_display()
   end
 
-  defp apply_discounts(token) do
+  defp calculate_price(token) do
     token
     |> apply_gr1_discount()
     |> apply_sr1_discount()
+    |> apply_cf1_discount()
   end
 
   defp apply_gr1_discount(token) do
@@ -55,10 +55,11 @@ defmodule Cashier do
     %{token | price: token.price + discounted}
   end
 
-  defp calculate_price(token) do
-    Map.update!(token, :price, fn price ->
-      Enum.sum([price | Enum.map([:CF1], &((token.basket[&1] || 0) * @products[&1].price))])
-    end)
+  defp apply_cf1_discount(token) do
+    amount = token.basket[:CF1] || 0
+    original_price = @products[:CF1].price * amount
+    discounted = amount >= 3 && trunc(original_price * 2 / 3) || original_price
+    %{token | price: token.price + discounted}
   end
 
   defp reset_cashier(agent) do
